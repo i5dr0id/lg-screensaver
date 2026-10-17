@@ -1,0 +1,305 @@
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --fg-soft: #d4d4d4;
+  --muted: #8c8c8c;
+  --tick: #5a5a5a;
+  --tick-major: #9a9a9a;
+  font-family: -apple-system, 'LG Display', 'LG Smart', system-ui, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  cursor: none;
+}
+
+.clock {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+.dial {
+  position: absolute;
+  left: 1.5vw;
+  top: 50%;
+  width: 0;
+  height: 0;
+}
+
+.rings {
+  position: absolute;
+  left: -500px;
+  top: -500px;
+  width: 1000px;
+  height: 1000px;
+  -webkit-mask-image: var(--fade);
+  mask-image: var(--fade);
+  --fade: -webkit-gradient(conic, center center, from(0deg),
+    color-stop(0, rgba(0,0,0,0.25)),
+    color-stop(0.167, #000),
+    color-stop(0.333, #000),
+    color-stop(0.5, rgba(0,0,0,0.25)),
+    color-stop(0.569, transparent),
+    color-stop(0.931, transparent),
+    color-stop(1, rgba(0,0,0,0.25))
+  );
+  --fade: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(0,0,0,0.25) 0deg,
+    #000 60deg,
+    #000 120deg,
+    rgba(0,0,0,0.25) 180deg,
+    transparent 205deg,
+    transparent 335deg,
+    rgba(0,0,0,0.25) 360deg
+  );
+}
+
+/* --- Rings ---------------------------------------------------------------- */
+
+.ring {
+  position: absolute;
+  left: 500px;
+  top: 500px;
+  width: 0;
+  height: 0;
+}
+
+/* The rotating layer: ticks are rasterised once, then only moved by the GPU. */
+.spin {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  will-change: transform;
+}
+
+.ring.minutes .spin,
+.ring.minutes .upright.moving {
+  -webkit-transition: -webkit-transform 900ms cubic-bezier(0.65, 0, 0.25, 1);
+  transition: transform 900ms cubic-bezier(0.65, 0, 0.25, 1);
+}
+
+.ring.minutes .label {
+  -webkit-transition: opacity 400ms ease;
+  transition: opacity 400ms ease;
+}
+
+.ring.seconds {
+  -webkit-animation: fade-in 1200ms ease 300ms both;
+  animation: fade-in 1200ms ease 300ms both;
+}
+
+.ring.seconds.sweeping .spin {
+  -webkit-animation: spin 60s linear var(--sweep-delay) infinite;
+  animation: spin 60s linear var(--sweep-delay) infinite;
+}
+
+.ring.seconds.sweeping .upright {
+  -webkit-animation: spin-back 60s linear var(--sweep-delay) infinite;
+  animation: spin-back 60s linear var(--sweep-delay) infinite;
+}
+
+@-webkit-keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@-webkit-keyframes spin {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@-webkit-keyframes spin-back {
+  from { -webkit-transform: rotate(0deg); }
+  to { -webkit-transform: rotate(-360deg); }
+}
+
+@keyframes spin-back {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.ticks {
+  position: absolute;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  overflow: visible;
+}
+
+.ticks line {
+  stroke: var(--tick);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.ticks line.major {
+  stroke: var(--tick-major);
+}
+
+.label,
+.upright {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.upright > span {
+  position: absolute;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  font-size: 22px;
+  line-height: 1;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  -webkit-transition: color 400ms ease, -webkit-transform 400ms ease;
+  transition: color 400ms ease, transform 400ms ease;
+}
+
+.label.active .upright > span {
+  color: var(--fg);
+  -webkit-transform: translate(-50%, -50%) scale(1.75);
+  transform: translate(-50%, -50%) scale(1.75);
+}
+
+.hour {
+  position: absolute;
+  left: 3px;
+  top: 0;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+  font-size: 108px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Panel ---------------------------------------------------------------- */
+
+.panel {
+  position: absolute;
+  left: 58%;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+  width: 32vw;
+  max-width: 520px;
+  font-size: 1.1vw;
+  color: var(--fg-soft);
+}
+
+.weekday {
+  font-size: 5.2em;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+
+.full-date {
+  margin-top: 0.8em;
+  font-size: 1.6em;
+  font-weight: 300;
+  color: var(--muted);
+}
+
+.calendar {
+  margin-top: 3.5em;
+}
+
+.calendar-title,
+.progress-row > span:first-child {
+  letter-spacing: 0.26em;
+  color: var(--muted);
+}
+
+.calendar-grid {
+  display: -webkit-grid;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 0.9em;
+  margin-top: 1.4em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-head {
+  color: var(--muted);
+}
+
+.calendar-grid .today {
+  color: var(--bg);
+  background: var(--fg);
+  border-radius: 999px;
+  margin: -0.35em 0.6em;
+  padding: 0.35em 0;
+}
+
+.progress {
+  display: -webkit-grid;
+  display: grid;
+  gap: 1.1em;
+  margin-top: 3.5em;
+}
+
+.progress-row {
+  display: -webkit-grid;
+  display: grid;
+  grid-template-columns: 5em 1fr 4.5em;
+  -webkit-align-items: center;
+  align-items: center;
+  gap: 1em;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-row > span:last-child {
+  text-align: right;
+}
+
+.bar {
+  height: 2px;
+  background: var(--tick);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--fg);
+  -webkit-transform: scaleX(0);
+  transform: scaleX(0);
+  -webkit-transform-origin: left center;
+  transform-origin: left center;
+  -webkit-transition: -webkit-transform 900ms ease;
+  transition: transform 900ms ease;
+}
