@@ -22,13 +22,25 @@ Two components run at boot:
 
 ## Install
 
+### From IPK
+
+Build the IPK and install it on the TV:
+
+```sh
+./build-ipk.sh
+scp com.custom.screensaver_1.0.0.ipk root@<TV_IP>:/tmp/
+ssh root@<TV_IP> 'cd / && ar x /tmp/com.custom.screensaver_1.0.0.ipk data.tar.gz && tar xzf /data.tar.gz -C / && rm /data.tar.gz'
+```
+
+### Manual
+
 ```sh
 # Copy screensaver files to TV
 scp index.html clock.js style.css watcher.js root@<TV_IP>:/media/developer/screensaver/
 
 # Install as webOS app
 ssh root@<TV_IP> 'mkdir -p /media/developer/apps/usr/palm/applications/com.custom.screensaver'
-scp index.html clock.js style.css root@<TV_IP>:/media/developer/apps/usr/palm/applications/com.custom.screensaver/
+scp appinfo.json index.html clock.js style.css icon.png root@<TV_IP>:/media/developer/apps/usr/palm/applications/com.custom.screensaver/
 ```
 
 ## Auto-start
@@ -42,6 +54,9 @@ index.html     Web page loaded by the screensaver app
 clock.js       Concentric clock animation and calendar rendering
 style.css      Dark theme styling for TV display
 watcher.js     Node.js daemon that replaces the stock screensaver
+appinfo.json   webOS app manifest
+icon.png       App icon (80x80)
+build-ipk.sh   Builds the .ipk package
 ```
 
 ## Related
