@@ -8,33 +8,31 @@ var TARGETS = [
   "com.webos.app.inputcommon"
 ];
 
-var replaced = false;
+function getForegroundApp(cb) {
+  exec('luna-send-pub -n 1 luna://com.webos.applicationManager/getForegroundAppInfo \'{}\'', function (err, out) {
+    if (err || !out) return cb(null);
+    try {
+      var m = out.match(/"appId"\s*:\s*"([^"]+)"/);
+      cb(m ? m[1] : null);
+    } catch (e) { cb(null); }
+  });
+}
 
 function launch() {
   exec('luna-send-pub -n 1 luna://com.webos.applicationManager/launch \'{"id":"' + APP + '"}\'', function () {
     console.log(new Date().toLocaleString() + " - Screensaver app launched");
-    replaced = true;
   });
 }
 
 function check() {
-  exec("ps aux", function (err, out) {
-    if (!out) return;
-
-    var appRunning = out.indexOf(APP) !== -1;
-
+  getForegroundApp(function (fg) {
+    if (!fg) return;
     for (var i = 0; i < TARGETS.length; i++) {
-      if (out.indexOf(TARGETS[i]) !== -1) {
-        if (!replaced) {
-          console.log(new Date().toLocaleString() + " - Detected: " + TARGETS[i] + ", replacing...");
-          launch();
-        }
+      if (fg === TARGETS[i]) {
+        console.log(new Date().toLocaleString() + " - Detected: " + fg + ", replacing...");
+        launch();
         return;
       }
-    }
-
-    if (replaced && !appRunning) {
-      replaced = false;
     }
   });
 }
